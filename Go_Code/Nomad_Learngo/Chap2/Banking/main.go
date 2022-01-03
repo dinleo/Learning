@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Nomad_Learngo/Nomad_Learngo/Chap2/Banking/accounts"
+	"Learning/Nomad_Learngo/Chap2/Banking/accounts"
 	"fmt"
 )
 
