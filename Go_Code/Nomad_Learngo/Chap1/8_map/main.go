@@ -10,4 +10,7 @@ func main() {
 	for k, v := range std {
 		fmt.Println(k, v)
 	}
+
+	k, e := std["c"]
+	fmt.Println(k, e)
 }
