@@ -15,6 +15,7 @@ func (d Dictionary) Search(word string) (int, error) {
 	return 0, errNotFound
 }
 
+// Add num for key
 func (d Dictionary) Add(word string, num int) error {
 	_, err := d.Search(word)
 	if err == errNotFound {
