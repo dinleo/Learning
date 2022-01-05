@@ -19,7 +19,7 @@ func main() {
 }
 
 func isSexy(person string, c chan string) {
-	fmt.Println(person, "is sexy")
+	fmt.Println(person, " is sexy")
 	time.Sleep(time.Second)
 	c <- person + "is sexy"
 }
