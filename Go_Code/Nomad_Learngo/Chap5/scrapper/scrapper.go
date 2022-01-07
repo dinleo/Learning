@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 type jobInfo struct {
@@ -37,7 +38,7 @@ func Scrape(term string) {
 }
 
 func writeJobs(jobs []jobInfo) {
-	file, err := os.Create("Nomad_Learngo/Chap5/scrapper/jobs.csv")
+	file, err := os.Create("Nomad_Learngo/Chap5/jobs.csv")
 	checkErr(err)
 
 	utf8bom := []byte{0xEF, 0xBB, 0xBF}
@@ -137,4 +138,8 @@ func checkRes(res *http.Response) {
 	if res.StatusCode != 200 {
 		log.Fatalf("status code error: %d %s\n", res.StatusCode, res.Status)
 	}
+}
+
+func CleanString(s string) string {
+	return strings.Join(strings.Fields(strings.TrimSpace(s)), " ")
 }
