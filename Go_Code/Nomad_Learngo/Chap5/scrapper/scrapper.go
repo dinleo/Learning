@@ -19,7 +19,7 @@ type jobInfo struct {
 	company  string
 }
 
-// Scarpe indeed by term
+// Scrape indeed by term
 func Scrape(term string) {
 	var baseURL = "https://kr.indeed.com/jobs?q=" + term + "&limit=50"
 	var jobs []jobInfo
