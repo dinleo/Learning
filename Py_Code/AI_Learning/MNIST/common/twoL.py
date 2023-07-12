@@ -1,9 +1,9 @@
 import sys
-sys.path.append("C:\\Users\\dinle\\Code\\Learning\\Py_Code\\AI_Learning\\MNIST\\funcs")
+sys.path.append("C:\\Users\\dinle\\Code\\Learning\\Py_Code\\AI_Learning\\MNIST\\common")
 from functions import *
-from gradient_2d import numerical_gradient
+from gradient import numerical_gradient
 from collections import OrderedDict
-from layer import *
+from layers import *
 
 class TwoLayerNet:
 
