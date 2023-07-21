@@ -195,4 +195,5 @@ pyvenv.cfg
 pip-selfcheck.json
 
 # End of https://www.toptal.com/developers/gitignore/api/python,venv
+/Jv_Code/
 /Py_Code/AI_Learning/mnist/dataset/mnist.pkl
