@@ -22,37 +22,55 @@ class Relu:
         return dx
 
 
-class NewSigmoid:
-    def __init__(self, n, t):
+class nSigmoid:
+    def __init__(self, t):
         self.out = None
         self.threshold = t
-        self.call_count = np.array([10] * n)
-        self.node_size = n
-        self.i = 0
 
     def forward(self, x):
-        call10 = np.log10(self.call_count)
-        xx = np.multiply(call10, x)
-        # xx = self.threshold * x
+        xx = self.threshold * x
         out = sigmoid(xx)
-
-        t = out > self.threshold
-        # tt = (np.sum(t, axis=0) > (self.node_size//2))
-        tt = np.sum(t, axis=0)
-        self.call_count += tt
         self.out = out
-        self.i += 1
-        if self.i == 3000:
-            print(self.call_count)
 
         return out
 
     def backward(self, dout):
-        dx = dout * (1.0 - self.out) * self.out
-        call10 = np.log10(self.call_count)
-        dxx = np.multiply(call10, dx)
+        dx = self.threshold * dout * (1.0 - self.out) * self.out
 
-        return dxx
+        return dx
+
+class tSigmoid:
+    def __init__(self, n, t):
+        self.out = None
+        self.threshold = t
+        self.call_count = np.array([10] * n)
+        self.call_count_log = None
+        self.node_size = n
+        self.i = 0
+
+    def forward(self, x):
+        call_count_log = 2 * np.log10(self.call_count)
+
+        xx = np.multiply(call_count_log, x)
+        # xx = self.threshold * x
+        out = sigmoid(xx)
+
+        t = out > self.threshold
+        tt = np.sum(t, axis=0) > (self.node_size//2)
+        self.call_count += tt
+
+        self.call_count_log = call_count_log
+        self.out = out
+        self.i += 1
+        if self.i%1000==0:
+            print(self.call_count_log)
+            print(self.call_count)
+        return out
+
+    def backward(self, dout):
+        dx = self.call_count_log * dout * (1.0 - self.out) * self.out
+
+        return dx
 
 
 class Sigmoid:

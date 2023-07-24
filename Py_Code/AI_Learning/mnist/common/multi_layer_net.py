@@ -22,7 +22,7 @@ class MultiLayerNet:
     weight_decay_lambda : 가중치 감소(L2 법칙)의 세기
     """
     def __init__(self, input_size, hidden_size_list, output_size,
-                 activation='relu', weight_init_std='relu', weight_decay_lambda=0, threshold=0.5):
+                 activation='relu', weight_init_std='relu', weight_decay_lambda=0, threshold=1):
         self.input_size = input_size
         self.output_size = output_size
         self.hidden_size_list = hidden_size_list
@@ -40,7 +40,9 @@ class MultiLayerNet:
             self.layers['Affine' + str(idx)] = Affine(self.params['W' + str(idx)],
                                                       self.params['b' + str(idx)])
             if activation == 'nSigmoid':
-                self.layers['Activation_function' + str(idx)] = NewSigmoid(hidden_size_list[idx-1], threshold)
+                self.layers['Activation_function' + str(idx)] = nSigmoid(threshold)
+            elif activation == 'tSigmoid':
+                self.layers['Activation_function' + str(idx)] = tSigmoid(hidden_size_list[idx - 1], threshold)
             elif activation == 'sigmoid':
                 self.layers['Activation_function' + str(idx)] = Sigmoid()
             else:
@@ -66,7 +68,7 @@ class MultiLayerNet:
             scale = weight_init_std
             if str(weight_init_std).lower() in ('relu', 'he'):
                 scale = np.sqrt(2.0 / all_size_list[idx - 1])  # ReLU를 사용할 때의 권장 초깃값
-            elif str(weight_init_std).lower() in ('sigmoid', 'xavier', 'nsigmoid'):
+            elif str(weight_init_std).lower() in ('sigmoid', 'xavier'):
                 scale = np.sqrt(1.0 / all_size_list[idx - 1])  # sigmoid를 사용할 때의 권장 초깃값
             self.params['W' + str(idx)] = scale * np.random.randn(all_size_list[idx-1], all_size_list[idx])
             self.params['b' + str(idx)] = np.zeros(all_size_list[idx])
