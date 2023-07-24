@@ -26,29 +26,33 @@ class NewSigmoid:
     def __init__(self, n, t):
         self.out = None
         self.threshold = t
-        self.call_i = np.array([np.e] * n)
+        self.call_count = np.array([10] * n)
         self.node_size = n
         self.i = 0
 
     def forward(self, x):
-        # call10 = np.log(self.call_i)
-        # xx = np.multiply(call10, x)
-        xx = self.threshold * x
+        call10 = np.log10(self.call_count)
+        xx = np.multiply(call10, x)
+        # xx = self.threshold * x
         out = sigmoid(xx)
 
-        # t = out > self.threshold
-        #
-        # tt = (np.sum(t, axis=0) > (self.node_size//2)) * 2
-        # self.call_i += tt
+        t = out > self.threshold
+        # tt = (np.sum(t, axis=0) > (self.node_size//2))
+        tt = np.sum(t, axis=0)
+        self.call_count += tt
         self.out = out
-
+        self.i += 1
+        if self.i == 3000:
+            print(self.call_count)
 
         return out
 
     def backward(self, dout):
-        dx = 2 * dout * (1.0 - self.out) * self.out
+        dx = dout * (1.0 - self.out) * self.out
+        call10 = np.log10(self.call_count)
+        dxx = np.multiply(call10, dx)
 
-        return dx
+        return dxx
 
 
 class Sigmoid:
