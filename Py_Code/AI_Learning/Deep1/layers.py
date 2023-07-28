@@ -1,4 +1,4 @@
-import numpy as np
+from node import *
 
 
 class Affine:
@@ -6,26 +6,25 @@ class Affine:
         self.W = W
         self.b = b
 
-        self.x = None
-        self.original_x_shape = None
-        # 가중치와 편향 매개변수의 미분
         self.dW = None
         self.db = None
 
+        self.nodes = {
+            'reshape': Reshape(),
+            'dot': Dot(),
+            'add': Add()
+        }
+
     def forward(self, x):
-        # 텐서 대응
-        self.original_x_shape = x.shape
-        x = x.reshape(x.shape[0], -1)
-        self.x = x
+        y = self.nodes['reshape'].forward(x, [x.shape[0], -1])
+        y = self.nodes['dot'].forward(y, self.W)
+        y = self.nodes['add'].forward(y, self.b)
 
-        out = np.dot(self.x, self.W) + self.b
+        return y
 
-        return out
+    def backward(self, y):
+        dx, self.db = self.nodes['add'].backward(y)
+        dx, self.dW = self.nodes['dot'].backward(dx)
+        dx = self.nodes['reshape'].backward(dx)
 
-    def backward(self, dout):
-        dx = np.dot(dout, self.W.T)
-        self.dW = np.dot(self.x.T, dout)
-        self.db = np.sum(dout, axis=0)
-
-        dx = dx.reshape(*self.original_x_shape)  # 입력 데이터 모양 변경(텐서 대응)
         return dx

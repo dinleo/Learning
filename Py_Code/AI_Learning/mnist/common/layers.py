@@ -62,9 +62,9 @@ class tSigmoid:
         self.call_count_log = call_count_log
         self.out = out
         self.i += 1
-        if self.i%1000==0:
-            print(self.call_count_log)
-            print(self.call_count)
+        # if self.i%1000==0:
+        #     print(self.call_count_log)
+        #     print(self.call_count)
         return out
 
     def backward(self, dout):
