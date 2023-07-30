@@ -79,3 +79,33 @@ class Mask:
         y[self.mask] = 0
         dx = y
         self.x_node.backward(dx)
+
+
+class Max:
+    def __init__(self, x_node, axis=0):
+        self.x_node = x_node
+        self.axis = axis
+        self.x_shape = None
+        self.o_shape = None
+        self.mask = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        out = np.max(x, axis=self.axis)
+
+        self.x_shape = x.shape
+        self.mask = np.argmax(x, axis=self.axis)
+        self.o_shape = out.shape
+
+        return out
+
+    def backward(self, y):
+        dx = np.zeros(self.x_shape)
+        if len(self.x_shape) == 1:
+            dx[self.mask] = y
+        else:
+            n_i = np.indices(self.o_shape)
+            mask = np.insert(n_i, self.axis, self.mask, axis=0)
+            dx[tuple(mask)] = y
+
+        self.x_node.backward(dx)

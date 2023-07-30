@@ -1,9 +1,9 @@
 from layers import *
 import sys
 sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/mnist')
-from common.layers import Convolution as Convolution2
+from common.layers import Pooling as Pooling2
 
-w = np.array(range(16)).reshape([2, 2, 2, 2])
+w = np.array(range(36)).reshape([2, 2, 3, 3])
 x = np.array(range(18)).reshape([1, 2, 3, 3])
 
 b = np.array([1, 2])
@@ -28,19 +28,22 @@ t = np.array([1, 0, 2])
 # print(o2)
 # exit()
 
-s1 = Convolution(w, b)
-s2 = Convolution2(w, b)
+s1 = Pooling(2, 2)
+s2 = Pooling2(2, 2)
 
 y1 = s1.forward(x)
 y2 = s2.forward(x)
 
+print(y1)
+print(y2)
 
 
 b1 = s1.backward(y1)
 b2 = s2.backward(y2)
 #
 
-print(s1.dW - s2.dW)
+print(b1)
+print(b2)
 
 #
 # st1 = SoftmaxWithLoss()

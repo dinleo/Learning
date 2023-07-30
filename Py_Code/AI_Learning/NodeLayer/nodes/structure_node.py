@@ -49,18 +49,18 @@ class Transpose:
 
 
 class Img2Matrix:
-    def __init__(self, x_node):
+    def __init__(self, x_node, f_shape):
         self.x_node = x_node
         self.x_shape = None
-        self.filter_shape = None
+        self.f_shape = f_shape
 
     def forward(self):
         x = self.x_node.forward()
         self.x_shape = x.shape
-        fh = self.filter_shape['fh']
-        fw = self.filter_shape['fw']
-        pad = self.filter_shape['pad']
-        stride = self.filter_shape['stride']
+        fh = self.f_shape['fh']
+        fw = self.f_shape['fw']
+        pad = self.f_shape['pad']
+        stride = self.f_shape['stride']
 
         N, C, H, W = x.shape
         out_h = (H + 2 * pad - fh) // stride + 1
@@ -80,10 +80,10 @@ class Img2Matrix:
         return col
 
     def backward(self, y):
-        fh = self.filter_shape['fh']
-        fw = self.filter_shape['fw']
-        pad = self.filter_shape['pad']
-        stride = self.filter_shape['stride']
+        fh = self.f_shape['fh']
+        fw = self.f_shape['fw']
+        pad = self.f_shape['pad']
+        stride = self.f_shape['stride']
 
         N, C, H, W = self.x_shape
         out_h = (H + 2 * pad - fh) // stride + 1
