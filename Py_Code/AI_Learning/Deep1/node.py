@@ -16,6 +16,44 @@ class GetValue:
             self.dv += y
 
 
+# OneNode
+class OneNode:
+    def __init__(self, x_node):
+        self.x_node = x_node
+        self.out = None
+
+
+class Exp(OneNode):
+    def __init__(self, x_node):
+        super().__init__(x_node)
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.out = np.exp(x)
+
+        return self.out
+
+    def backward(self, y):
+        dx = y * self.out
+        self.x_node.backward(dx)
+
+
+class Log(OneNode):
+    def __init__(self, x_node):
+        super().__init__(x_node)
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.out = x + 1e-7
+
+        return np.log(self.out)
+
+    def backward(self, y):
+        dx = y / self.out
+        self.x_node.backward(dx)
+
+
+# TwoNode
 class TwoNode:
     def __init__(self, a_node, b_node):
         self.a_node = a_node
@@ -26,23 +64,6 @@ class TwoNode:
 
     def backward(self, y):
         pass
-
-
-class Reshape:
-    def __init__(self, x_node, shape):
-        self.x_node = x_node
-        self.shape = shape
-        self.x_shape = None
-
-    def forward(self):
-        x = self.x_node.forward()
-        self.x_shape = x.shape
-
-        return x.reshape(*self.shape)
-
-    def backward(self, y):
-        y = y.reshape(self.x_shape)
-        self.x_node.backward(y)
 
 
 class Dot(TwoNode):
@@ -66,31 +87,212 @@ class Dot(TwoNode):
         self.b_node.backward(db)
 
 
+class Mul(TwoNode):
+    def __init__(self, a_node, b_node):
+        super().__init__(a_node, b_node)
+        self.a = None
+        self.b = None
+
+    def forward(self):
+        self.a = self.a_node.forward()
+        self.b = self.b_node.forward()
+
+        return self.a * self.b
+
+    def backward(self, y):
+        da = y * self.b
+        db = self.a * y
+
+        self.a_node.backward(da)
+        self.b_node.backward(db)
+
+
 class Add(TwoNode):
     def __init__(self, a_node, b_node):
         super().__init__(a_node, b_node)
-        self.a_shape = None
-        self.b_shape = None
 
     def forward(self):
         a = self.a_node.forward()
         b = self.b_node.forward()
-        self.a_shape = a.shape
-        self.b_shape = b.shape
 
         return a + b
 
     def backward(self, y):
-        if self.a_shape != self.b_shape:
-            if len(self.a_shape) < len(self.b_shape):
-                da = np.sum(y, axis=0)
-                db = y
-            else:
-                da = y
-                db = np.sum(y, axis=0)
-        else:
-            da = y
-            db = y
+        da = y
+        db = y
 
         self.a_node.backward(da)
         self.b_node.backward(db)
+
+
+# Structure
+class Reshape:
+    def __init__(self, x_node, shape):
+        self.x_node = x_node
+        self.shape = shape
+        self.x_shape = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.x_shape = x.shape
+
+        return x.reshape(*self.shape)
+
+    def backward(self, y):
+        y = y.reshape(self.x_shape)
+        self.x_node.backward(y)
+
+
+# Const
+class ConstNode:
+    def __init__(self, x_node, c):
+        self.x_node = x_node
+        self.c = c
+
+    def forward(self):
+        pass
+
+    def backward(self, y):
+        pass
+
+
+class AddConst(ConstNode):
+    def __init__(self, x_node, c=1):
+        super().__init__(x_node, c)
+
+    def forward(self):
+        x = self.x_node.forward()
+
+        return self.c + x
+
+    def backward(self, y):
+        self.x_node.backward(y)
+
+
+class MulConst(ConstNode):
+    def __init__(self, x_node, c=-1):
+        super().__init__(x_node, c)
+        self.x_node = x_node
+        self.c = c
+
+    def forward(self):
+        x = self.x_node.forward()
+
+        return x * self.c
+
+    def backward(self, y):
+        dx = y * self.c
+        self.x_node.backward(dx)
+
+
+class Reciprocal:
+    def __init__(self, x_node):
+        self.x_node = x_node
+        self.out = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.out = 1 / x
+
+        return self.out
+
+    def backward(self, y):
+        dx = (-1) * y
+        dx = dx * (self.out * self.out)
+        self.x_node.backward(dx)
+
+
+class Sum:
+    def __init__(self, x_node, axis=0):
+        self.x_node = x_node
+        self.axis = axis
+        self.r = None
+        self.shape = None
+
+    def forward(self):
+        x = self.x_node.forward()
+
+        self.r = x.shape[self.axis]
+        x = np.sum(x, axis=self.axis)
+
+        return x
+
+    def backward(self, y):
+        dx = np.expand_dims(y, axis=self.axis)
+        dx = np.repeat(dx, self.r, axis=self.axis)
+
+        self.x_node.backward(dx)
+
+
+class Repeat:
+    def __init__(self, x_node, axis, r):
+        self.x_node = x_node
+        self.axis = axis
+        self.r = r
+
+    def forward(self):
+        x = self.x_node.forward()
+        y = np.expand_dims(x, axis=self.axis)
+        y = np.repeat(y, repeats=self.r, axis=self.axis)
+
+        return y
+
+    def backward(self, y):
+        dx = np.sum(y, axis=self.axis)
+        self.x_node.backward(dx)
+
+
+class Mean:
+    def __init__(self, x_node, axis=0):
+        self.x_node = x_node
+        self.axis = axis
+        self.r = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.r = x.shape[self.axis]
+        x = np.sum(x, axis=self.axis) / self.r
+
+        return x
+
+    def backward(self, y):
+        dx = np.expand_dims(y, axis=self.axis)
+        dx = np.repeat(dx, self.r, axis=self.axis) / self.r
+
+        self.x_node.backward(dx)
+
+
+class NormByMax:
+    def __init__(self, x_node):
+        self.x_node = x_node
+
+    def forward(self):
+        x = self.x_node.forward()
+        x = x.T
+        x = x - np.max(x, axis=0)
+        y = x.T
+
+        return y
+
+    def backward(self, y):
+        self.x_node.backward(y)
+
+
+class Mask:
+    def __init__(self, x_node, t=0):
+        self.x_node = x_node
+        self.t = t
+        self.mask = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.mask = (x <= self.t)
+        out = x.copy()
+        out[self.mask] = 0
+
+        return out
+
+    def backward(self, y):
+        y[self.mask] = 0
+        dx = y
+        self.x_node.backward(dx)
