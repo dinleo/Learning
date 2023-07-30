@@ -1,13 +1,16 @@
 from layers import *
-from origin import *
+import sys
+sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/mnist')
+from common.layers import Convolution as Convolution2
 
-w = np.array([1] * 12).reshape(4, 3)
-x = np.array([[1, 3, 2, 4], [1, 9, 2, 3], [3,4, 0,  1]])
+w = np.array(range(16)).reshape([2, 2, 2, 2])
+x = np.array(range(18)).reshape([1, 2, 3, 3])
 
-b = np.array([1, 1, 1])
+b = np.array([1, 2])
+
 
 y = np.array([[0, 0.3, 0.5, 0.2], [0, 0.1, 0.8, 0.1], [0.1, 0, 0.3, 0.6]])
-t = np.array([1,0,2])
+t = np.array([1, 0, 2])
 
 # a1 = Affine(w, b)
 # a2 = Affine2(w, b)
@@ -25,20 +28,19 @@ t = np.array([1,0,2])
 # print(o2)
 # exit()
 
-s1 = SigmoidWithLoss()
-s2 = SigmoidWithLoss()
+s1 = Convolution(w, b)
+s2 = Convolution2(w, b)
 
-y1 = s1.forward(x, t)
-y2 = s2.forward(x, t)
+y1 = s1.forward(x)
+y2 = s2.forward(x)
 
-print(y1)
-print(y2)
+
+
 b1 = s1.backward(y1)
 b2 = s2.backward(y2)
 #
-print(b1)
-print(b2)
-print(b2 - b1)
+
+print(s1.dW - s2.dW)
 
 #
 # st1 = SoftmaxWithLoss()
