@@ -7,10 +7,13 @@ class GetValue:
         self.dv = None
 
     def forward(self):
+        # 순전파시 grad 초기화
         self.dv = None
+        # 순전파시 value return
         return self.v
 
     def backward(self, y):
+        # 역전파시 흘러들어오는 grad 모두 더함
         if self.dv is None:
             self.dv = y
         else:
