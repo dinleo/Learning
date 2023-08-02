@@ -13,8 +13,9 @@ class Reshape:
         return x.reshape(*self.shape)
 
     def backward(self, y):
-        y = y.reshape(self.x_shape)
-        self.x_node.backward(y)
+        dx = y.reshape(self.x_shape)
+
+        self.x_node.backward(dx)
 
 
 class T:

@@ -21,16 +21,16 @@ class Layer:
 
         return self.dx
 
-
 class Affine(Layer):
     def __init__(self, w, b):
         super().__init__()
+        # Leaf Node
         self.get_w = GetValue(w)
         self.get_b = GetValue(b)
-
+        # gradient
         self.dW = None
         self.db = None
-
+        # Tree 생성 (노드 연결)
         self.reshape_node = Reshape(self.get_x, None)
         self.dot_xw_node = Dot(self.reshape_node, self.get_w)
         self.rep_b_node = Repeat(self.get_b, 0, None)
@@ -83,8 +83,9 @@ class Softmax(Layer):
     def forward(self, x):
         self.get_x.v = x
         self.rep_node.r = x.shape[1]
-
-        return self.last_node.forward()
+        y = self.last_node.forward()
+        # print("Y:\n", y)
+        return y
 
 
 class CrossEntropy:

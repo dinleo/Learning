@@ -19,7 +19,7 @@ class Sum:
     def backward(self, y):
         dx = np.expand_dims(y, axis=self.axis)
         dx = np.repeat(dx, self.r, axis=self.axis)
-
+        # print("Sum backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -38,6 +38,7 @@ class Repeat:
 
     def backward(self, y):
         dx = np.sum(y, axis=self.axis)
+        # print("Repeat backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -57,7 +58,7 @@ class Mean:
     def backward(self, y):
         dx = np.expand_dims(y, axis=self.axis)
         dx = np.repeat(dx, self.r, axis=self.axis) / self.r
-
+        # print("Mean backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -78,6 +79,7 @@ class Mask:
     def backward(self, y):
         y[self.mask] = 0
         dx = y
+
         self.x_node.backward(dx)
 
 
@@ -107,5 +109,5 @@ class Max:
             n_i = np.indices(self.o_shape)
             mask = np.insert(n_i, self.axis, self.mask, axis=0)
             dx[tuple(mask)] = y
-
+        # print("Max backward:\n", dx)
         self.x_node.backward(dx)

@@ -18,7 +18,7 @@ class Relu:
     def backward(self, dout):
         dout[self.mask] = 0
         dx = dout
-
+        # print("relu:", np.mean(np.mean(dx)))
         return dx
 
 
@@ -36,7 +36,7 @@ class nSigmoid:
 
     def backward(self, dout):
         dx = self.threshold * dout * (1.0 - self.out) * self.out
-
+        # print("nSig:", np.mean(np.mean(dx)))
         return dx
 
 class tSigmoid:
@@ -84,7 +84,7 @@ class Sigmoid:
 
     def backward(self, dout):
         dx = dout * (1.0 - self.out) * self.out
-
+        # print("sig:", np.mean(np.mean(dx)))
         return dx
 
 

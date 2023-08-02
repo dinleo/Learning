@@ -48,7 +48,8 @@ class Mul(TwoNode):
     def backward(self, y):
         da = y * self.b
         db = self.a * y
-
+        # print("Mul backward left:\n", da)
+        # print("Mul backward right:\n", db)
         self.a_node.backward(da)
         self.b_node.backward(db)
 

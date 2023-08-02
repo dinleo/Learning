@@ -50,6 +50,7 @@ class Exp(OneNode):
 
     def backward(self, y):
         dx = y * self.out
+        # print("Exp backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -65,6 +66,7 @@ class Log(OneNode):
 
     def backward(self, y):
         dx = y / self.out
+        # print("Log backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -81,6 +83,7 @@ class Reciprocal(OneNode):
     def backward(self, y):
         dx = (-1) * y
         dx = dx * (self.out * self.out)
+        # print("Reciprocal backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -94,6 +97,8 @@ class AddConst(ConstNode):
         return self.c + x
 
     def backward(self, y):
+        dx = y
+        # print("AddConst backward:\n", dx)
         self.x_node.backward(y)
 
 
@@ -110,6 +115,7 @@ class MulConst(ConstNode):
 
     def backward(self, y):
         dx = y * self.c
+        # print("MulConst backward:\n", dx)
         self.x_node.backward(dx)
 
 
@@ -126,4 +132,6 @@ class NormByMax:
         return y
 
     def backward(self, y):
+        dx = y
+        # print("NormByMax backward:\n", dx)
         self.x_node.backward(y)

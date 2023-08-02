@@ -42,7 +42,7 @@ class MultiLayerNet:
             if activation == 'nSigmoid':
                 self.layers['Activation_function' + str(idx)] = nSigmoid(threshold)
             elif activation == 'tSigmoid':
-                self.layers['Activation_function' + str(idx)] = tSigmoid(hidden_size_list[idx - 1], threshold)
+                self.layers['Activation_function' + str(idx)] = tSigmoid(threshold)
             elif activation == 'sigmoid':
                 self.layers['Activation_function' + str(idx)] = Sigmoid()
             else:
