@@ -70,20 +70,41 @@ class Log(OneNode):
         self.x_node.backward(dx)
 
 
+class Power(OneNode):
+    def __init__(self, x_node, p):
+        super().__init__(x_node)
+        self.p = p
+        self.x = None
+        self.out = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.x = x
+        self.out = np.power(x, self.p)
+
+        return self.out
+
+    def backward(self, y):
+        dx = self.p * np.power(self.x, self.p - 1)
+        dx = y * dx
+        # print("Power backward\n", dx)
+        self.x_node.backward(dx)
+
+
 class Reciprocal(OneNode):
     def __init__(self, x_node):
         super().__init__(x_node)
 
     def forward(self):
         x = self.x_node.forward()
-        self.out = 1 / x
+        self.out = 1 / (x + 1e-7)
 
         return self.out
 
     def backward(self, y):
         dx = (-1) * y
         dx = dx * (self.out * self.out)
-        # print("Reciprocal backward:\n", dx)
+
         self.x_node.backward(dx)
 
 

@@ -21,6 +21,7 @@ class Layer:
 
         return self.dx
 
+
 class Affine(Layer):
     def __init__(self, w, b):
         super().__init__()
@@ -66,7 +67,7 @@ class Relu(Layer):
     def __init__(self):
         super().__init__()
 
-        self.last_node = Mask(self.get_x, 0)
+        self.last_node = IndexMask(self.get_x, 0)
 
 
 class Softmax(Layer):
@@ -220,7 +221,7 @@ class Pooling(Layer):
         }
 
         self.im2col_node = Img2Matrix(self.get_x, self.f_shape)
-        self.reshape_node = Reshape(self.im2col_node, [-1, pool_h*pool_w])
+        self.reshape_node = Reshape(self.im2col_node, [-1, pool_h * pool_w])
         self.max_node = Max(self.reshape_node, axis=1)
         self.reshape_node2 = Reshape(self.max_node, None)
         self.last_node = Transpose(self.reshape_node2, [0, 3, 1, 2])
@@ -234,3 +235,97 @@ class Pooling(Layer):
         self.reshape_node2.shape = [N, out_h, out_w, C]
 
         return self.last_node.forward()
+
+
+class BatchNormalization(Layer):
+    def __init__(self, gamma, beta, momentum=0.9, running_mean=None, running_var=None):
+        super().__init__()
+        self.get_r = GetValue(gamma)
+        self.get_b = GetValue(beta)
+        self.dgamma = None
+        self.dbeta = None
+
+        self.momentum = momentum
+        self.running_mean = running_mean
+        self.running_var = running_var
+        self.input_shape = None
+        self.first = True
+
+        # Layer
+        self.mean_node = Mean(self.get_x, axis=0, name="mean1")
+        self.neg_node = MulConst(self.mean_node, -1)
+        self.rep_node = Repeat(self.neg_node, axis=0, r=None)
+
+        self.xc_node = Add(self.get_x, self.rep_node)
+
+        self.sqr_node = Power(self.xc_node, 2)
+        self.mean_node2 = Mean(self.sqr_node, axis=0, name="mean2")
+        self.std_node = Power(self.mean_node2, 0.5)
+        self.recip_node = Reciprocal(self.std_node)
+        self.rep_node2 = Repeat(self.recip_node, axis=0, r=None)
+
+        self.xn_node = Mul(self.xc_node, self.rep_node2)
+        self.r_node = Repeat(self.get_r, axis=0, r=None)
+        self.b_node = Repeat(self.get_b, axis=0, r=None)
+        self.r_xn_node = Mul(self.xn_node, self.r_node)
+        self.last_node = Add(self.r_xn_node, self.b_node)
+
+    def forward(self, x, train_flg=True):
+        self.input_shape = x.shape
+        if x.ndim != 2:
+            N, C, H, W = x.shape
+            x = x.reshape(N, -1)
+        N, D = x.shape
+
+        if train_flg:
+            if self.first:
+                self.rep_node.r = N
+                self.rep_node2.r = N
+                self.r_node.r = N
+                self.b_node.r = N
+                self.first = False
+            self.get_x.v = x
+
+            out = self.last_node.forward()
+
+            if self.running_mean is None:
+                self.running_mean = np.zeros(D)
+                self.running_var = np.zeros(D)
+
+            self.running_mean = self.momentum * self.running_mean + (1 - self.momentum) * self.mean_node.out
+            self.running_var = self.momentum * self.running_var + (1 - self.momentum) * np.power(self.std_node.out, 2)
+        else:
+            xc = x - self.running_mean
+            xn = xc / (np.sqrt(self.running_var + 10e-7))
+            out = self.get_r.v * xn + self.get_b.v
+
+        return out.reshape(*self.input_shape)
+
+    def backward(self, y):
+        if y.ndim != 2:
+            N, C, H, W = y.shape
+            y = y.reshape(N, -1)
+
+        self.last_node.backward(y)
+
+        self.dgamma = self.get_r.dv
+        self.dbeta = self.get_b.dv
+        self.dx = self.get_x.dv
+        # print(self.dx)
+        dx = self.dx.reshape(*self.input_shape)
+        return
+
+
+class Dropout(Layer):
+    def __init__(self, dropout_ratio=0.5):
+        super().__init__()
+        self.dropout_ratio = dropout_ratio
+
+        self.last_node = IndexMask(self.get_x, dropout_ratio)
+
+    def forward(self, x, train_flg=True):
+        self.get_x.v = x
+        if train_flg:
+            return self.last_node.forward()
+        else:
+            return x * (1.0 - self.dropout_ratio)

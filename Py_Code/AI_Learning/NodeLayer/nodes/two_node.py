@@ -42,8 +42,9 @@ class Mul(TwoNode):
     def forward(self):
         self.a = self.a_node.forward()
         self.b = self.b_node.forward()
+        y = self.a * self.b
 
-        return self.a * self.b
+        return y
 
     def backward(self, y):
         da = y * self.b
@@ -67,6 +68,6 @@ class Add(TwoNode):
     def backward(self, y):
         da = y
         db = y
-
+        # print("Add Backward\n:", y)
         self.a_node.backward(da)
         self.b_node.backward(db)

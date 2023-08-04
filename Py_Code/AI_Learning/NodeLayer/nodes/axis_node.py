@@ -43,26 +43,28 @@ class Repeat:
 
 
 class Mean:
-    def __init__(self, x_node, axis=0):
+    def __init__(self, x_node, axis=0, name=""):
         self.x_node = x_node
         self.axis = axis
         self.r = None
+        self.out = None
+        self.name = name
 
     def forward(self):
         x = self.x_node.forward()
         self.r = x.shape[self.axis]
-        x = np.sum(x, axis=self.axis) / self.r
+        self.out = np.sum(x, axis=self.axis) / self.r
 
-        return x
+        return self.out
 
     def backward(self, y):
         dx = np.expand_dims(y, axis=self.axis)
         dx = np.repeat(dx, self.r, axis=self.axis) / self.r
-        # print("Mean backward:\n", dx)
+        # print(self.name + " backward:\n", dx)
         self.x_node.backward(dx)
 
 
-class Mask:
+class ValueMask:
     def __init__(self, x_node, t=0):
         self.x_node = x_node
         self.t = t
@@ -79,6 +81,24 @@ class Mask:
     def backward(self, y):
         y[self.mask] = 0
         dx = y
+
+        self.x_node.backward(dx)
+
+
+class IndexMask:
+    def __init__(self, x_node, t=0):
+        self.x_node = x_node
+        self.t = t
+        self.mask = None
+
+    def forward(self):
+        x = self.x_node.forward()
+        self.mask = np.random.rand(*x.shape) > self.t
+
+        return x * self.mask
+
+    def backward(self, y):
+        dx = y * self.mask
 
         self.x_node.backward(dx)
 
