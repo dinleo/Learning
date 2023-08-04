@@ -3,10 +3,18 @@ from nodes.axis_node import *
 from nodes.one_node import *
 
 
-x1 = np.array([[-0.0688, -0.0688, -0.0688, -0.0688],
- [ 0.3062 , 0.3062,  0.3062,  0.3062],
- [ 0.6812,  0.6812 , 0.6812,  0.6812]])
-x2 = np.array([[ 0.375,  0.375,  0.375,  0.375],
- [-0.,    -0.,    -0.,    -0.   ],
- [-0.375, -0.375, -0.375, -0.375]])
-print(x1 + x2)
+class T:
+    def __init__(self):
+        self.out = None
+
+    def f(self, x):
+        y = 2*x
+        self.out = y
+        return y
+org = np.array([1, 2, 3])
+tt = T()
+n = tt.f(org)
+n[0] = 3
+print(org)
+print(n)
+print(tt.out)

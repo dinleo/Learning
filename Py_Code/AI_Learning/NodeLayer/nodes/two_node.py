@@ -23,8 +23,9 @@ class Dot(TwoNode):
         b = self.b_node.forward()
         self.aT = a.T  # [128, 100] -> [100, 128]
         self.bT = b.T  # [100, 10] -> [10, 100]
+        y = np.dot(a, b)  # [128, 100] * [100, 10] -> [128, 10]
 
-        return np.dot(a, b)  # [128, 100] * [100, 10] -> [128, 10]
+        return y
 
     def backward(self, y):
         da = np.dot(y, self.bT)  # [128, 10] * [10, 100] -> [128, 100]
@@ -62,12 +63,13 @@ class Add(TwoNode):
     def forward(self):
         a = self.a_node.forward()
         b = self.b_node.forward()
+        y = a + b
 
-        return a + b
+        return y
 
     def backward(self, y):
-        da = y
-        db = y
+        da = y.copy()
+        db = y.copy()
         # print("Add Backward\n:", y)
         self.a_node.backward(da)
         self.b_node.backward(db)

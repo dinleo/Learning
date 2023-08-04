@@ -1,8 +1,7 @@
-from nodes.one_node import *
-from nodes.two_node import *
-from nodes.structure_node import *
-from nodes.axis_node import *
-
+from one_node import *
+from two_node import *
+from structure_node import *
+from axis_node import *
 
 class Layer:
     def __init__(self):
@@ -66,8 +65,7 @@ class Sigmoid(Layer):
 class Relu(Layer):
     def __init__(self):
         super().__init__()
-
-        self.last_node = IndexMask(self.get_x, 0)
+        self.last_node = ValueMask(self.get_x, 0)
 
 
 class Softmax(Layer):
@@ -95,7 +93,7 @@ class CrossEntropy:
         self.dx = None
         self.get_t = GetValue(None)
 
-        self.log_node = Log(self.get_x)
+        self.log_node = Log(self.get_x, 1e-7)
         self.mul_node = Mul(self.get_t, self.log_node)
         self.sum_node = Sum(self.mul_node, 1)
         self.neg_node = MulConst(self.sum_node, -1)
@@ -260,8 +258,8 @@ class BatchNormalization(Layer):
 
         self.sqr_node = Power(self.xc_node, 2)
         self.mean_node2 = Mean(self.sqr_node, axis=0, name="mean2")
-        self.std_node = Power(self.mean_node2, 0.5)
-        self.recip_node = Reciprocal(self.std_node)
+        self.std_node = Power(self.mean_node2, 0.5, 10e-7)
+        self.recip_node = Reciprocal(self.std_node, 0)
         self.rep_node2 = Repeat(self.recip_node, axis=0, r=None)
 
         self.xn_node = Mul(self.xc_node, self.rep_node2)
@@ -313,7 +311,9 @@ class BatchNormalization(Layer):
         self.dx = self.get_x.dv
         # print(self.dx)
         dx = self.dx.reshape(*self.input_shape)
-        return
+
+        return self.get_x.dl
+        return dx
 
 
 class Dropout(Layer):

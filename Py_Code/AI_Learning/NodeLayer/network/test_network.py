@@ -1,7 +1,9 @@
-from layers import *
+
 import sys
 import numpy as np
 sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/mnist')
+sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/NodeLayer/nodes')
+from layers import *
 from common.layers import Pooling as Pooling2
 from common.layers import Convolution as Convolution2
 from common.layers import SoftmaxWithLoss as SoftmaxWithLoss2
@@ -73,41 +75,50 @@ t = np.array([1, 0, 2])
 # # print(l1 / l2)
 # print(y1-t)
 #
+x = np.array(range(12)).reshape(4, 3)
+# x = np.random.randn(12).reshape(4, 3)
+N = x.shape[1]
+r = np.ones(N)
+b = np.ones(N)
+st1 = BatchNormalization(r, b)
+st2 = BatchNormalization2(r, b)
+# print("X:\n", x2)
+# print("T:\n", t)
+y1 = st1.forward(x)
+y2 = st2.forward(x)
+# print("(Node):\n", y1)
+# print("(TextBook):\n", y2)
+
+
+b1 = st1.backward(y1)
+b2 = st2.backward(y1)
+print(b1)
+print(b2)
+#
+s1 = sum(b1)
+s2 = sum(b2)
+for i in range(4):
+    print(b1[i] - b2[i])
+# print("Node:\n", b1)
+# print("TextBook:\n", b2)
+# print(b1/b2)
+#
 # x = np.array(range(12)).reshape(3, 4)
-# N = x.shape[1]
-# r = np.ones(N)
-# b = np.ones(N)
-# st1 = BatchNormalization(r, b)
-# st2 = BatchNormalization2(r, b)
-# # print("X:\n", x2)
-# # print("T:\n", t)
+#
+# st1 = Dropout(0.5)
+# st2 = Dropout2(0.5)
+#
+#
 # y1 = st1.forward(x)
 # y2 = st2.forward(x)
-# # print("(Node):\n", y1)
-# # print("(TextBook):\n", y2)
+# print("(Node):\n", y1)
+# print("(TextBook):\n", y2)
 #
 #
 # b1 = st1.backward(y1)
 # b2 = st2.backward(y2)
 # print("Node:\n", b1)
 # print("TextBook:\n", b2)
-
-x = np.array(range(12)).reshape(3, 4)
-
-st1 = Dropout(0.5)
-st2 = Dropout2(0.5)
-
-
-y1 = st1.forward(x)
-y2 = st2.forward(x)
-print("(Node):\n", y1)
-print("(TextBook):\n", y2)
-
-
-b1 = st1.backward(y1)
-b2 = st2.backward(y2)
-print("Node:\n", b1)
-print("TextBook:\n", b2)
 
 
 # #

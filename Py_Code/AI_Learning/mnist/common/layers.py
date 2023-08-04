@@ -231,7 +231,7 @@ class BatchNormalization:
 
         dx = self.__backward(dout)
 
-        dx = dx.reshape(*self.input_shape)
+        # dx = dx.reshape(*self.input_shape)
         return dx
 
     def __backward(self, dout):
@@ -241,13 +241,19 @@ class BatchNormalization:
         dxc = dxn / self.std
         dstd = -np.sum((dxn * self.xc) / (self.std * self.std), axis=0)
         dvar = 0.5 * dstd / self.std
-        dxc += (2.0 / self.batch_size) * self.xc * dvar
+        dxc2 = (2.0 / self.batch_size) * self.xc * dvar
+
         dmu = np.sum(dxc, axis=0)
-        dx = dxc - dmu / self.batch_size
+        dmu2 = np.sum(dxc2, axis=0)
+
+        dmean = - (dmu / self.batch_size)
+        dmean2 = - (dmu2 / self.batch_size)
+        dx = dxc + dmean + dxc2 + dmean2
 
         self.dgamma = dgamma
         self.dbeta = dbeta
 
+        return [dxc, dmean, dxc2, dmean2]
         return dx
 
 

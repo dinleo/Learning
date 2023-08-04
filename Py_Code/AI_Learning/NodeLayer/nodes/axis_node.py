@@ -10,11 +10,10 @@ class Sum:
 
     def forward(self):
         x = self.x_node.forward()
-
         self.r = x.shape[self.axis]
-        x = np.sum(x, axis=self.axis)
+        y = np.sum(x, axis=self.axis)
 
-        return x
+        return y
 
     def backward(self, y):
         dx = np.expand_dims(y, axis=self.axis)
@@ -47,15 +46,16 @@ class Mean:
         self.x_node = x_node
         self.axis = axis
         self.r = None
-        self.out = None
         self.name = name
+        self.out = None
 
     def forward(self):
         x = self.x_node.forward()
         self.r = x.shape[self.axis]
-        self.out = np.sum(x, axis=self.axis) / self.r
+        y = np.sum(x, axis=self.axis) / self.r
+        self.out = y.copy()
 
-        return self.out
+        return y
 
     def backward(self, y):
         dx = np.expand_dims(y, axis=self.axis)
@@ -73,14 +73,14 @@ class ValueMask:
     def forward(self):
         x = self.x_node.forward()
         self.mask = (x <= self.t)
-        out = x.copy()
-        out[self.mask] = 0
+        y = x.copy()
+        y[self.mask] = 0
 
-        return out
+        return y
 
     def backward(self, y):
-        y[self.mask] = 0
-        dx = y
+        dx = y.copy
+        dx[self.mask] = 0
 
         self.x_node.backward(dx)
 
@@ -94,8 +94,9 @@ class IndexMask:
     def forward(self):
         x = self.x_node.forward()
         self.mask = np.random.rand(*x.shape) > self.t
+        y = x * self.mask
 
-        return x * self.mask
+        return y
 
     def backward(self, y):
         dx = y * self.mask
@@ -113,13 +114,13 @@ class Max:
 
     def forward(self):
         x = self.x_node.forward()
-        out = np.max(x, axis=self.axis)
+        y = np.max(x, axis=self.axis)
 
         self.x_shape = x.shape
         self.mask = np.argmax(x, axis=self.axis)
-        self.o_shape = out.shape
+        self.o_shape = y.shape
 
-        return out
+        return y
 
     def backward(self, y):
         dx = np.zeros(self.x_shape)
