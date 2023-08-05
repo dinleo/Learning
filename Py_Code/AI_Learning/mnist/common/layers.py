@@ -253,7 +253,6 @@ class BatchNormalization:
         self.dgamma = dgamma
         self.dbeta = dbeta
 
-        return [dxc, dmean, dxc2, dmean2]
         return dx
 
 

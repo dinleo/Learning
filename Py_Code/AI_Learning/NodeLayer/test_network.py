@@ -1,8 +1,8 @@
 
 import sys
 import numpy as np
-sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/mnist')
-sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/NodeLayer/nodes')
+sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/')
+sys.path.append('/Users/leo/Code/Learning/Py_Code/AI_Learning/mnist')
 from layers import *
 from common.layers import Pooling as Pooling2
 from common.layers import Convolution as Convolution2
@@ -99,6 +99,7 @@ s1 = sum(b1)
 s2 = sum(b2)
 for i in range(4):
     print(b1[i] - b2[i])
+print(s1 - s2)
 # print("Node:\n", b1)
 # print("TextBook:\n", b2)
 # print(b1/b2)

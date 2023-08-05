@@ -79,7 +79,7 @@ class ValueMask:
         return y
 
     def backward(self, y):
-        dx = y.copy
+        dx = y.copy()
         dx[self.mask] = 0
 
         self.x_node.backward(dx)

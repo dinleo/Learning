@@ -5,7 +5,6 @@ class GetValue:
     def __init__(self, v):
         self.v = v
         self.dv = None
-        self.dl = []
 
     def forward(self):
         # 순전파시 grad 초기화
@@ -19,7 +18,6 @@ class GetValue:
             self.dv = y.copy()
         else:
             self.dv += y
-        self.dl.append(y.copy())
 
 class OneNode:
     def __init__(self, x_node):
@@ -86,13 +84,18 @@ class Power(OneNode):
     def forward(self):
         x = self.x_node.forward()
         self.x = x + self.eta
-        y = np.power(x, self.p)
+        y = np.power(self.x, self.p)
         self.out = y.copy()
 
         return y
 
     def backward(self, y):
-        dx = self.p * np.power(self.x, self.p - 1)
+        if self.p == 0.5:
+            dx = self.p * (1 / self.out)
+        elif self.p == 2:
+            dx = 2 * self.x
+        else:
+            dx = self.p * np.power(self.x, self.p - 1)
         dx = y * dx
         # print("Power backward\n", dx)
         self.x_node.backward(dx)

@@ -1,8 +1,8 @@
-from one_node import *
-from two_node import *
-from structure_node import *
-from axis_node import *
-
+import sys
+from nodes.one_node import *
+from nodes.two_node import *
+from nodes.structure_node import *
+from nodes.axis_node import *
 class Layer:
     def __init__(self):
         self.get_x = GetValue(None)
@@ -252,13 +252,13 @@ class BatchNormalization(Layer):
         # Layer
         self.mean_node = Mean(self.get_x, axis=0, name="mean1")
         self.neg_node = MulConst(self.mean_node, -1)
-        self.rep_node = Repeat(self.neg_node, axis=0, r=None)
+        self.mu_node = Repeat(self.neg_node, axis=0, r=None)
 
-        self.xc_node = Add(self.get_x, self.rep_node)
+        self.xc_node = Add(self.get_x, self.mu_node)
 
         self.sqr_node = Power(self.xc_node, 2)
-        self.mean_node2 = Mean(self.sqr_node, axis=0, name="mean2")
-        self.std_node = Power(self.mean_node2, 0.5, 10e-7)
+        self.var_node = Mean(self.sqr_node, axis=0, name="var")
+        self.std_node = Power(self.var_node, 0.5, 10e-7)
         self.recip_node = Reciprocal(self.std_node, 0)
         self.rep_node2 = Repeat(self.recip_node, axis=0, r=None)
 
@@ -277,7 +277,7 @@ class BatchNormalization(Layer):
 
         if train_flg:
             if self.first:
-                self.rep_node.r = N
+                self.mu_node.r = N
                 self.rep_node2.r = N
                 self.r_node.r = N
                 self.b_node.r = N
@@ -312,7 +312,6 @@ class BatchNormalization(Layer):
         # print(self.dx)
         dx = self.dx.reshape(*self.input_shape)
 
-        return self.get_x.dl
         return dx
 
 
