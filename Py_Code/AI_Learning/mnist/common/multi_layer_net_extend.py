@@ -97,11 +97,11 @@ class MultiLayerNetExtend:
         t : 정답 레이블 
         """
         y = self.predict(x, train_flg)
-
         weight_decay = 0
-        for idx in range(1, self.hidden_layer_num + 2):
-            W = self.params['W' + str(idx)]
-            weight_decay += 0.5 * self.weight_decay_lambda * np.sum(W**2)
+        if self.weight_decay_lambda != 0:
+            for idx in range(1, self.hidden_layer_num + 2):
+                W = self.params['W' + str(idx)]
+                weight_decay += 0.5 * self.weight_decay_lambda * np.sum(W**2)
 
         return self.last_layer.forward(y, t) + weight_decay
 

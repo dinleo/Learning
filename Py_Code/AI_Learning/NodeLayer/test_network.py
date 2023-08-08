@@ -1,9 +1,9 @@
-
 import sys
 import numpy as np
-sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/')
-sys.path.append('/Users/leo/Code/Learning/Py_Code/AI_Learning/mnist')
-from layers import *
+
+sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/mnist/')
+sys.path.append('/Users/leo/Code/Learning/Py_Code/AI_Learning/mnist/')
+from Networks.Layers.layers import *
 from common.layers import Pooling as Pooling2
 from common.layers import Convolution as Convolution2
 from common.layers import SoftmaxWithLoss as SoftmaxWithLoss2

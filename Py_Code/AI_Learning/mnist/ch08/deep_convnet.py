@@ -79,11 +79,11 @@ class DeepConvNet:
                 x = layer.forward(x)
         return x
 
-    def loss(self, x, t):
-        y = self.predict(x, train_flg=True)
+    def loss(self, x, t, train_flg=False):
+        y = self.predict(x, train_flg)
         return self.last_layer.forward(y, t)
 
-    def accuracy(self, x, t, batch_size=100):
+    def accuracy(self, x, t, batch_size=128):
         if t.ndim != 1 : t = np.argmax(t, axis=1)
 
         acc = 0.0
@@ -99,7 +99,7 @@ class DeepConvNet:
 
     def gradient(self, x, t):
         # forward
-        self.loss(x, t)
+        self.loss(x, t, train_flg=True)
 
         # backward
         dout = 1

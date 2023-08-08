@@ -63,15 +63,15 @@ x = np.arange(max_epochs)
 for i, w in enumerate(weight_scale_list):
     print( "============== " + str(i+1) + "/16" + " ==============")
     train_acc_list, bn_train_acc_list = __train(w)
-    
+
     plt.subplot(4,4,i+1)
-    plt.title("W:" + str(w))
+    plt.title("W:{:.3f}".format(w), fontsize=7)
     if i == 15:
-        plt.plot(x, bn_train_acc_list, label='Batch Normalization', markevery=2)
-        plt.plot(x, train_acc_list, linestyle = "--", label='Normal(without BatchNorm)', markevery=2)
+        plt.plot(x, bn_train_acc_list, label='BN', markevery=2)
+        plt.plot(x, train_acc_list, label='No BN', markevery=2)
     else:
         plt.plot(x, bn_train_acc_list, markevery=2)
-        plt.plot(x, train_acc_list, linestyle="--", markevery=2)
+        plt.plot(x, train_acc_list,markevery=2)
 
     plt.ylim(0, 1.0)
     if i % 4:
@@ -82,6 +82,7 @@ for i, w in enumerate(weight_scale_list):
         plt.xticks([])
     else:
         plt.xlabel("epochs")
-    plt.legend(loc='lower right')
-    
+    # plt.legend(loc='lower right', fontsize=4)
+    plt.subplots_adjust(wspace=0.4, hspace=0.4)
+
 plt.show()
