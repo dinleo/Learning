@@ -142,7 +142,7 @@ class SoftmaxWithLoss:
     def backward(self, y):
         dx = self.c.backward(1)
         dx = self.s.backward(dx)
-        # 빠른 계산을 위한 공식 적용
+        # 빠른 계산을 위한 공식 적용, 단 Log Node 에서 self.x = x + eta 가 아닌  self.x = x 로 적용됨 주의
         # dx = (self.y - self.t) / self.t.shape[0]
         return dx
 
