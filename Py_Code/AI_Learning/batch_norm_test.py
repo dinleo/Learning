@@ -1,6 +1,3 @@
-# coding: utf-8
-import sys, os
-sys.path.append('C:/Users/dinle/Code/Learning/Py_Code/AI_Learning/Node_Layer_Network')
 import numpy as np
 import matplotlib.pyplot as plt
 from Node_Layer_Network.dataset.mnist import load_mnist
